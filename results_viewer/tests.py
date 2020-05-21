@@ -11,19 +11,11 @@ class ViewsTestCase(TestCase):
     def setUp(self):
         pass
 
-    def test_get_results_csv(self):
+
+    def test_get_csv(self):
 
         client = Client()
-        response = client.get('/results/8dc3920c-89b1-447c-adba-46b786b16cf5/csv/')
+        response = client.get('/results/4b8e997c-0ce5-45d8-87fb-0f314505754a/paths/')
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(b'PROBE\n7.0744693e+08,-0.31869156,-0.96279682,4.9987514e-05' in response.content)
-
-
-    def test_get_sorted_results_csv(self):
-
-        client = Client()
-        response = client.get('/results/8dc3920c-89b1-447c-adba-46b786b16cf5/sorted_csv/')
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(b'PROBE\n7.0744693e+08,-0.31869156,-0.96279682,4.9987514e-05' in response.content)
+        self.assertTrue(b'PROBE\n7.0739567e+08,-0.32819958,-0.95950251,4.9871959e-05' in response.content)

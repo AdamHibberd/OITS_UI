@@ -44,6 +44,8 @@ var MonitorStatus = {
 
             if (data.status === 'C') {
                 $('download-results').removeClass('d-none');
+                $('view-render').removeClass('d-none');
+
                 obj.style.backgroundColor = "lime";
 
             } else if (data.status === 'P') {

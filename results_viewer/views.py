@@ -2,69 +2,12 @@ from django.conf import settings
 from django.http import HttpResponse
 from pathlib import Path
 from zipfile import ZipFile
-import collections
 import os
 
 
 
-def get_results_csv(request, uid):
-
-    home = str(Path.home())
-    filename = uid + '.zip'
-    zip_results = os.path.join(settings.MEDIA_ROOT.replace('~',home), filename)
-
-    zip_results=ZipFile(zip_results)
-
-    results = []
-
-    for name in zip_results.namelist():
-        contents = zip_results.read(name).decode("utf-8").split('\n')
-
-        if len(contents) > 0:
-            suffix = name.replace(uid, '')
-            suffix = suffix.replace('.txt', '')
-
-            if suffix:
-                header = contents[0]
-            else:
-                header = 'PROBE'
-
-            results.append(header)
-
-            data = process_text(contents)
-
-
-            results.append(data)
-
-            results.append('#END#')
-
-    response = '\n'.join(results)
-
-    return HttpResponse(response, content_type='text/plain')
-
-
-def process_text(contents):
-
-    result = []
-
-    for r in contents:
-
-        # Data row
-        if len(r) > 150:
-            output_row = ",".join([
-                r[0:15].strip(),
-                r[53:68].strip(),
-                r[69:84].strip(),
-                r[85:100].strip(),
-            ])
-
-            result.append(output_row)
-
-    return "\n".join(result)
-
-
 # Create your views here.
-def get_sorted_results_csv(request, uid):
+def get_paths(request, uid):
 
     home = str(Path.home())
     filename = uid + '.zip'
@@ -77,30 +20,32 @@ def get_sorted_results_csv(request, uid):
     intermediate_point_index = 1
 
     for file_name in zip_results.namelist():
-        contents = zip_results.read(file_name).decode("utf-8").split('\n')
+        if not 'orbparam' in file_name:
 
-        if len(contents) > 0:
-            suffix = file_name.replace(uid, '')
-            suffix = suffix.replace('.txt', '')
+            contents = zip_results.read(file_name).decode("utf-8").split('\n')
 
-            if suffix:
-                body = contents[0]
-            else:
-                body = 'PROBE'
+            if len(contents) > 0:
+                suffix = file_name.replace(uid, '')
+                suffix = suffix.replace('.txt', '')
 
-            # append intermediate points with an index
-            if 'INTERMEDIATE POINT' in body:
-                body = body + ' ' + str(intermediate_point_index)
-                intermediate_point_index += 1
+                if suffix:
+                    body = contents[0]
+                else:
+                    body = 'PROBE'
 
-            if body in results_by_body:
-                contents_by_time = results_by_body[body]
-            else:
-                contents_by_time = {}
+                # append intermediate points with an index
+                if 'INTERMEDIATE POINT' in body:
+                    body = body + ' ' + str(intermediate_point_index)
+                    intermediate_point_index += 1
 
-            contents_by_time = get_contents_by_time(contents_by_time, contents)
+                if body in results_by_body:
+                    contents_by_time = results_by_body[body]
+                else:
+                    contents_by_time = {}
 
-            results_by_body[body] = contents_by_time
+                contents_by_time = get_contents_by_time(contents_by_time, contents)
+
+                results_by_body[body] = contents_by_time
 
 
     results = []
@@ -123,14 +68,17 @@ def get_contents_by_time(contents_by_time, contents):
 
     for r in contents:
 
-        time = r[0:15].strip()
-        # Data row
-        if len(r) > 150:
+        data = r.split(',')
+        if len(data) > 1:
+
+
+            time = data[0].strip()
+
             output_row = ",".join([
                 time,
-                r[53:68].strip(),
-                r[69:84].strip(),
-                r[85:100].strip(),
+                data[3],
+                data[4],
+                data[5],
             ])
 
             contents_by_time[float(time)] = output_row

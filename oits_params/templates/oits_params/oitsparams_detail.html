@@ -39,9 +39,16 @@
             Download Results
         </a>
 
+        <a id="view-render" href="https://oits3d.justinhui.com/#/?uid={{oitsParams.uid}}" class="btn btn-secondary">
+            View Render
+        </a>
+
     {% else %}
         <a id="download-results" href="{% get_media_prefix %}{{oitsParams.uid}}.zip" class="btn btn-primary d-none">
             Download Results
+        </a>
+        <a id="view-render" href="https://oits3d.justinhui.com/#/?uid={{oitsParams.uid}}" class="btn btn-secondary d-none">
+            View Render
         </a>
     {% endif %}
 
